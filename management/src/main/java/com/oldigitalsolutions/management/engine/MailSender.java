@@ -60,7 +60,7 @@ public class MailSender {
                         .put(Emailv31.Message.TO, new JSONArray()
                         .put(new JSONObject()
                         .put("Email", mailDto.receiver())
-                        .put("Name", "")))
+                        .put("Name", "Name Surname")))
                         .put(Emailv31.Message.SUBJECT, mailDto.subject())
                         // .put(Emailv31.Message.TEXTPART, mailRequest.getText())
                         //.put(Emailv31.Message.HTMLPART, "<h3>" + mailRequest.getText() + "</h3>")
