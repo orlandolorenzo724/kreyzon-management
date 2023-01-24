@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -24,7 +25,8 @@ public class TempProspectService extends BaseService {
     public Void elaborateData() {
         List<TempProspect> tempProspectList = tempProspectRepository.findAll();
         for (TempProspect temp : tempProspectList) {
-            log.info("Working on: " + temp.toString());
+            String randomId = String.valueOf(UUID.randomUUID());
+            log.info(randomId + " - Working on: " + temp.toString());
 
             if (StringUtils.isBlank(temp.getFullName()))
                 temp.setFullName("");
@@ -63,6 +65,8 @@ public class TempProspectService extends BaseService {
                         .build();
                 categoryRepository.save(category);
             }
+
+            log.info(randomId + " - Completed");
         }
 
         tempProspectRepository.deleteAll(tempProspectList);

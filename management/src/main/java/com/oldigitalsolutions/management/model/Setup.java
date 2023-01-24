@@ -17,4 +17,12 @@ public class Setup {
     @Id
     @Column(name = "prospect_data_file_path")
     private String prospectDataFilePath;
+
+    private String apiKey;
+
+    private String apiSecret;
+
+    private String emailFrom;
+
+    private String nameFrom;
 }

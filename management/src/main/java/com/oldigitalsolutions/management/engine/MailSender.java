@@ -9,8 +9,10 @@ import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.mailjet.client.resource.Emailv31;
 import com.oldigitalsolutions.management.model.Email;
 import com.oldigitalsolutions.management.model.Prospect;
+import com.oldigitalsolutions.management.model.Setup;
 import com.oldigitalsolutions.management.repository.ProspectRepository;
 import com.oldigitalsolutions.management.request.MailDto;
+import com.oldigitalsolutions.management.service.SetupService;
 import com.oldigitalsolutions.management.utils.Constant;
 import com.oldigitalsolutions.management.utils.IDGenerator;
 import com.oldigitalsolutions.management.utils.StageUtils;
@@ -33,10 +35,15 @@ public class MailSender {
     @Autowired
     private ProspectRepository prospectRepository;
 
+    @Autowired
+    private SetupService setupService;
+
     public List<com.oldigitalsolutions.management.model.Email> send(List<MailDto> mailDtoList, Boolean testing) throws MailjetSocketTimeoutException, MailjetException {
         List<Email> emailList = new ArrayList<>();
 
-        MailjetClient client = new MailjetClient("488a15fd8f09348d32cd0e8093f9840e", "4cae583a4d543112c344e267172b3e84", new ClientOptions("v3.1"));
+        Setup setup = setupService.getSetup();
+
+        MailjetClient client = new MailjetClient(setup.getApiKey(), setup.getApiSecret(), new ClientOptions("v3.1"));
         MailjetResponse response;
 
         int emailIdCounter = 0;
@@ -48,19 +55,24 @@ public class MailSender {
                         .property(Emailv31.MESSAGES, new JSONArray()
                         .put(new JSONObject()
                         .put(Emailv31.Message.FROM, new JSONObject()
-                        .put("Email", "orlandolorenzomk@gmail.com")
-                        .put("Name", "Lorenzo Orlando"))
+                        .put("Email", setup.getEmailFrom())
+                        .put("Name", setup.getNameFrom())
                         .put(Emailv31.Message.TO, new JSONArray()
                         .put(new JSONObject()
                         .put("Email", mailDto.receiver())
-                        .put("Name", "Lorenzo Orlando")))
+                        .put("Name", "")))
                         .put(Emailv31.Message.SUBJECT, mailDto.subject())
                         // .put(Emailv31.Message.TEXTPART, mailRequest.getText())
                         //.put(Emailv31.Message.HTMLPART, "<h3>" + mailRequest.getText() + "</h3>")
                         .put(Emailv31.Message.TEXTPART, mailDto.text())
-                        .put(Emailv31.Message.CUSTOMID, "AppGettingStartedTest")));
+                        .put(Emailv31.Message.CUSTOMID, "AppGettingStartedTest"))));
+
+
+                log.info("Sending email to " + mailDto.receiver());
                 response = client.post(request);
                 if (response.getStatus() == 200) {
+                    log.info("Email sent");
+
                     Long id = -1L;
                     if (emailIdCounter == 0)
                         id = idGenerator.generateEmailId();
@@ -82,10 +94,8 @@ public class MailSender {
                     }
                 }
 
-                log.info("Sending email to " + mailDto.receiver());
-                log.info(String.valueOf(response.getStatus()));
-                log.info(String.valueOf(response.getData()));
-                log.info("Email sent");
+                log.info("Status: " + String.valueOf(response.getStatus()));
+                log.info("Data: " + String.valueOf(response.getData()));
             }
         }
 
