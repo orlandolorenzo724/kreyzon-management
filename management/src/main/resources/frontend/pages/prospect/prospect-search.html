@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Include jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+  <!-- Include Bootstrap CSS and JavaScript -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+  <!-- Include custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <title>Prospect Search</title>
+</head>
+<body>
+  <!-- Include navbar -->
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="home.html">OL Digital Solutions Prospecting Management</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="../../home.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/pages/prospect/prospect-search.html">Prospects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/pages/email/email-search.html">Emails</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page content -->
+  <div class="container mt-5">
+    <h1>Prospect Search</h1>
+    <br>
+    <form id="filter-form" class="form-inline">
+      <div class="form-group mb-2">
+        <input type="email" class="form-control" id="email" placeholder="Email">
+      </div>
+      <div class="form-group mb-2">
+        <select class="form-control" id="stage">
+          <option value="">Select stage</option>
+          <option value="NEW">New</option>
+          <option value="ACQUISITION">Acquisition</option>
+          <option value="CLIENT">Client</option>
+        </select>
+      </div>
+      <div class="form-group mb-2">
+        <select class="form-control" id="category">
+          <option value="">Select category</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary mb-2">Filter</button>
+    </form>
+    <br>  
+    <br>
+    <!-- Button -->
+    <a href="/pages/prospect/prospect-insert.html" class="btn btn-primary">Insert prospect</a>
+    <br><br>
+
+    <!-- Table -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Company</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Category</th>
+          <th scope="col">Stage</th>
+          <th scope="col">Social</th>
+          <th scope="col">Reachable</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="prospect-table-body">
+        <!-- Table rows will be added here by jQuery -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Script to populate table with data from /api/prospects -->
+  <script>
+
+$(document).ready(function() {
+  // Send GET request to /api/category
+  $.ajax({
+    type: 'GET',
+    url: 'http://localhost:8080/api/category',
+    success: function(response) {
+      console.log("Success")
+      // Iterate through response data
+      for (let i = 0; i < response.length; i++) {
+        const category = response[i];
+        console.log(category)
+        // Append new option to select list
+        $('#category').append(`
+          <option value="${category.name}">${category.name}</option>
+        `);
+      }
+    },
+    error: function(error) {
+      // Handle error response
+    }
+  });
+});
+
+
+$('#filter-form').submit(function(event) {
+    // Prevent form submission
+    event.preventDefault();
+    // Get form data
+    const email = $('#email').val();
+    const stage = $('#stage').val();
+    const category = $('#category').val();
+    // Create payload object
+    const payload = {
+      email: email,
+      stage: stage,
+      category: category
+    };
+    // Send POST request to /api/prospects/filter
+    $.ajax({
+      type: 'POST',
+      url: 'http://localhost:8080/api/prospects/filter',
+      data: JSON.stringify(payload),
+      contentType: 'application/json',
+      success: function(response) {
+        $('#prospect-table-body').empty();
+    // Iterate through response data
+    for (let i = 0; i < response.length; i++) {
+      const prospect = response[i];
+              // Get prospect's social accounts
+              $.ajax({
+          url: `http://localhost:8080/api/social-accounts/prospects/${prospect.id}`,
+          type: 'GET',
+          success: function(socialAccounts) {
+            // Create string to display social accounts
+            let socialAccountsString = '';
+            for (let j = 0; j < socialAccounts.length; j++) {
+              socialAccountsString += `<b>${socialAccounts[j].platform}</b>:<br> ${socialAccounts[j].username}<br>`;
+            }
+
+            if (socialAccountsString == '')
+                socialAccountsString = "#";
+            
+            if (prospect.company === null || prospect.company === '')
+                prospect.company = "#";
+
+            if (prospect.phone === null || prospect.phone === '')
+                prospect.phone = "#";
+
+            console.log("Social account string: " + socialAccountsString);
+
+            // Append row to table body
+            $('#prospect-table-body').append(`
+              <tr>
+                <th scope="row">${prospect.id}</th>
+                <td>${prospect.name}</td>
+                <td>${prospect.company}</td>
+                <td>${prospect.email}</td>
+                <td>${prospect.phone}</td>
+                <td>${prospect.category}</td>
+                <td>${prospect.stage}</td>
+                <td>${socialAccountsString}</td>
+                <td>${prospect.contactable}</td>
+                <td>
+                    <!-- Delete button -->
+                    <button class="btn btn-danger btn-sm delete-button" data-id="${prospect.id}">Delete</button>
+                </td>
+              </tr>
+            `);
+          }
+            });
+    }
+      },
+      error: function(error) {
+        // Handle error response
+      }
+    });
+  });
+
+
+    // When the document is ready
+$(document).ready(function() {
+  // Get prospects
+  $.ajax({
+    url: 'http://localhost:8080/api/prospects/last-prospects',
+    type: 'GET',
+    success: function(prospects) {
+      // Loop through prospects
+      for (let i = 0; i < prospects.length; i++) {
+        const prospect = prospects[i];
+        // Get prospect's social accounts
+        $.ajax({
+          url: `http://localhost:8080/api/social-accounts/prospects/${prospect.id}`,
+          type: 'GET',
+          success: function(socialAccounts) {
+            // Create string to display social accounts
+            let socialAccountsString = '';
+            for (let j = 0; j < socialAccounts.length; j++) {
+              socialAccountsString += `<b>${socialAccounts[j].platform}</b>:<br> ${socialAccounts[j].username}<br>`;
+            }
+
+            if (socialAccountsString == '')
+                socialAccountsString = "#";
+            
+            if (prospect.company === null || prospect.company === '')
+                prospect.company = "#";
+
+            if (prospect.phone === null || prospect.phone === '')
+                prospect.phone = "#";
+
+            console.log("Social account string: " + socialAccountsString);
+
+            // Append row to table body
+            $('#prospect-table-body').append(`
+              <tr>
+                <th scope="row">${prospect.id}</th>
+                <td>${prospect.name}</td>
+                <td>${prospect.company}</td>
+                <td>${prospect.email}</td>
+                <td>${prospect.phone}</td>
+                <td>${prospect.category}</td>
+                <td>${prospect.stage}</td>
+                <td>${socialAccountsString}</td>
+                <td>${prospect.contactable}</td>
+                <td>
+                    <!-- Delete button -->
+                    <button class="btn btn-danger btn-sm delete-button" data-id="${prospect.id}">Delete</button>
+                </td>
+              </tr>
+            `);
+          }
+            });
+        }
+        }
+    });
+    });
+
+
+  
+
+    // When the delete button is clicked
+$(document).on('click', '.delete-button', function() {
+  // Get prospect ID
+  const id = $(this).data('id');
+  // Send DELETE request to API
+  $.ajax({
+    url: `http://localhost:8080/api/prospects/${id}`,
+    type: 'DELETE',
+    success: function() {
+      // Remove row from table
+      $(this).closest('tr').remove();
+      // Show success message
+      alert('Prospect deleted successfully!');
+      window.location.href = "/pages/prospect/prospect-search.html";
+    }
+  });
+});
+  </script>
+</body>

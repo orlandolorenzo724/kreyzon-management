@@ -1,0 +1,27 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  application:
+    name: management
+  datasource:
+    username: 'postgres'
+    url: jdbc:postgresql://localhost:5432/olds_management
+    password: 'forzanapoli22'
+  jpa:
+    generate-ddl: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: 'true'
+    show-sql: 'true'
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false

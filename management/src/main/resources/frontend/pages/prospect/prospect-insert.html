@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Include jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+  <!-- Include Bootstrap CSS and JavaScript -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+  <!-- Include custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <title>Prospect Search</title>
+</head>
+<body>
+    <!-- Include navbar -->
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="home.html">OL Digital Solutions Prospecting Management</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="../../home.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/prospect/prospect-search.html">Prospects</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/email/email-search.html">Emails</a>
+            </li>
+          </ul>
+        </div>
+    </nav>
+
+    <!-- Page content -->
+    <div class="container mt-5">
+        <h1>Insert Prospect</h1>
+
+        <!-- Form -->
+        <form id="prospect-form" class="form-horizontal">
+            <div class="form-group">
+            <label for="name" class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="name" placeholder="Enter name">
+            </div>
+            </div>
+            <div class="form-group">
+                <label for="company" class="col-sm-2 control-label">Company</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="company" placeholder="Enter company name">
+                </div>
+                </div>
+            <div class="form-group">
+            <label for="email" class="col-sm-2 control-label">Email</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control" id="email" placeholder="Enter email">
+            </div>
+            </div>
+            <div class="form-group">
+            <label for="phone" class="col-sm-2 control-label">Phone</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="phone" placeholder="Enter phone">
+            </div>
+            </div>
+            <div class="form-group">
+                <label for="status" class="col-sm-2 control-label">Category</label>
+                <div class="col-sm-10">
+                  <select class="form-control" id="category">
+                    <option value="">Select category</option>
+                    <option value="FITNESS">Fitness</option>
+                    <option value="ENTREPRENEUR">Entrepreneur</option>
+                  </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="stage" class="col-sm-2 control-label">Stage</label>
+                <div class="col-sm-10">
+                  <select class="form-control" id="stage">
+                    <option value="">Select stage</option>
+                    <option value="NEW">New</option>
+                    <option value="ACQUISITION">Acquisition</option>
+                    <option value="CLIENT">Client</option>
+                  </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="contactable" class="col-sm-2 control-label">Contactable</label>
+                <div class="col-sm-10">
+                  <select class="form-control" id="contactable">
+                    <option value="">Select option</option>
+                    <option value="YES">Yes</option>
+                    <option value="NO">No</option>
+                  </select>
+                </div>
+            </div>
+            <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Script to handle form submission -->
+    <script>
+        $("#prospect-form").submit(function(event) {
+        // Prevent form from being submitted
+        event.preventDefault();
+
+        // Get form data
+        var data = {
+            name: $("#name").val(),
+            email: $("#email").val(),
+            phone: $("#phone").val().trim(),
+            company: $("#company").val(),
+            category: $("#category").val(),
+            stage: $("#stage").val(),
+            contactable: $("#contactable").val()
+        };
+
+        // Make POST request to /api/prospects with form data
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8080/api/prospects",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function(data) {
+                console.log("Prospect created successfully!");
+                window.location.href = "/pages/prospect/prospect-search.html";
+            },
+            error: function(xhr, status, error) {
+                console.error("Error creating prospect:", error);
+            }
+        });
+        });
+    </script>
+
+  
+</body>
