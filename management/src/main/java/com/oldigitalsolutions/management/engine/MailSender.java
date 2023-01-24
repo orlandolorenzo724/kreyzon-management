@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -48,6 +49,10 @@ public class MailSender {
 
         int emailIdCounter = 0;
 
+        int emailFailedCounter = 0;
+        double maximumNumberOfEmailFailed = mailDtoList.size() * 0.1;
+
+
         for (int i = 0; i < mailDtoList.size(); i++) {
             MailDto mailDto = mailDtoList.get(i);
             if (mailDto != null) {
@@ -60,7 +65,7 @@ public class MailSender {
                         .put(Emailv31.Message.TO, new JSONArray()
                         .put(new JSONObject()
                         .put("Email", mailDto.receiver())
-                        .put("Name", "Name Surname")))
+                        .put("Name", "Lorenzo Orlando")))
                         .put(Emailv31.Message.SUBJECT, mailDto.subject())
                         // .put(Emailv31.Message.TEXTPART, mailRequest.getText())
                         //.put(Emailv31.Message.HTMLPART, "<h3>" + mailRequest.getText() + "</h3>")
@@ -96,6 +101,13 @@ public class MailSender {
 
                 log.info("Status: " + String.valueOf(response.getStatus()));
                 log.info("Data: " + String.valueOf(response.getData()));
+            } else {
+                emailFailedCounter++;
+
+                if (emailFailedCounter == maximumNumberOfEmailFailed) {
+                    log.error("Too many failed emails. Aborting");
+                    return new ArrayList<>();
+                }
             }
         }
 

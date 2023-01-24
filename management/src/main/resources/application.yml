@@ -13,7 +13,7 @@ spring:
     name: management
   datasource:
     username: 'postgres'
-    url: jdbc:postgresql://192.168.1.131:5432/olds_management
+    url: jdbc:postgresql://localhost:5432/olds_management
     password: 'forzanapoli22'
   jpa:
     generate-ddl: true

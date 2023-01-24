@@ -31,8 +31,8 @@ public class MailEngineService extends BaseService {
                     .builder()
                     .prospect(prospect)
                     .receiver(prospect.getEmail())
-                    .subject(getEmailSubjectFreelancers())
-                    .text(getEmailTextFreelancers())
+                    .subject(getEmailSubjectBusiness())
+                    .text(getEmailTextBusinesses())
                     .build();
             mailDtoList.add(mailDto);
         }
