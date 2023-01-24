@@ -52,7 +52,6 @@ public class MailSender {
         int emailFailedCounter = 0;
         double maximumNumberOfEmailFailed = mailDtoList.size() * 0.1;
 
-
         for (int i = 0; i < mailDtoList.size(); i++) {
             MailDto mailDto = mailDtoList.get(i);
             if (mailDto != null) {
@@ -102,6 +101,7 @@ public class MailSender {
                 log.info("Status: " + String.valueOf(response.getStatus()));
                 log.info("Data: " + String.valueOf(response.getData()));
             } else {
+                log.info("Email sending failed");
                 emailFailedCounter++;
 
                 if (emailFailedCounter == maximumNumberOfEmailFailed) {

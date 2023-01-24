@@ -45,6 +45,16 @@ public class MailEngineService extends BaseService {
         return mailDtoList;
     }
 
+    public void deleteProspects() {
+        List<Prospect> prospectList = prospectRepository.findProspectListByStage(Constant.STAGE_NEW);
+        for (Prospect prospect : prospectList) {
+            List<SocialAccount> socialAccountList = socialAccountRepository.findByProspectId(prospect.getId());
+            socialAccountRepository.deleteAll(socialAccountList);
+        }
+
+        prospectRepository.deleteAll(prospectList);
+    }
+
     public List<MailDto> sendEmailForTesting() throws MailjetSocketTimeoutException, MailjetException {
         List<MailDto> mailDtoList = new ArrayList<>();
 

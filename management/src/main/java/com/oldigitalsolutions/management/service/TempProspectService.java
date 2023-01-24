@@ -39,7 +39,7 @@ public class TempProspectService extends BaseService {
                     .id(idGenerator.generateProspectId())
                     .name(temp.getFullName())
                     .company("")
-                    .email(temp.getEmail())
+                    .email(temp.getEmail().trim())
                     .phone(temp.getContactNumber())
                     .stage(Constant.STAGE_NEW)
                     .category(temp.getCategory().toUpperCase(Locale.ROOT))
